@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Academic Diploma</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Issue Diploma</h2>
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" placeholder="Enter student name" />
+        <label for="degree">Degree:</label>
+        <input type="text" id="degree" placeholder="Enter degree" />
+        <label for="institutionName">Institution Name:</label>
+        <input type="text" id="institutionName" placeholder="Enter institution name" />
+        <label for="graduationDate">Graduation Date:</label>
+        <input type="text" id="graduationDate" placeholder="Enter graduation date" />
+        <label for="qrCode">QR Code:</label>
+        <input type="text" id="qrCode" placeholder="Enter QR code" />
+        <button onclick="issueDiploma()">Issue Diploma</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const contractABI = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "diplomaId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "studentName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "degree",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "institutionName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "graduationDate",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "qrCode",
+          "type": "string"
+        }
+      ],
+      "name": "DiplomaIssued",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "studentName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "degree",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "institutionName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "graduationDate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "qrCode",
+          "type": "string"
+        }
+      ],
+      "name": "issueDiploma",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "diplomaId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "verifyDiploma",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "diplomaId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getDiplomaDetails",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    }
+  ];
+        const contractAddress = '0x1B96370feA0Cc3622F083362bCDfee1f9a9119F5';
+
+        let web3;
+        let contract;
+
+        async function loadWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+            } else if (window.web3) {
+                web3 = new Web3(window.web3.currentProvider);
+            } else {
+                alert('You need to install MetaMask!');
+            }
+        }
+
+        async function loadContract() {
+            const accounts = await web3.eth.getAccounts();
+            const account = accounts[0];
+            contract = new web3.eth.Contract(contractABI, contractAddress, { from: account });
+        }
+
+        async function issueDiploma() {
+            const studentName = document.getElementById('studentName').value;
+            const degree = document.getElementById('degree').value;
+            const institutionName = document.getElementById('institutionName').value;
+            const graduationDate = document.getElementById('graduationDate').value;
+            const qrCode = document.getElementById('qrCode').value;
+
+            document.getElementById('status').innerText = 'Issuing diploma...';
+
+            try {
+                const result = await contract.methods.issueDiploma(studentName, degree, institutionName, graduationDate, qrCode).send();
+                document.getElementById('status').innerText = 'Diploma issued successfully. Transaction hash: ' + result.transactionHash;
+            } catch (error) {
+                console.error(error);
+                document.getElementById('status').innerText = 'Error issuing diploma. Check the console for details.';
+            }
+        }
+
+        window.onload = async () => {
+            await loadWeb3();
+            await loadContract();
+        };
+    </script>
+</body>
+</html>
